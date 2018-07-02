@@ -1,4 +1,7 @@
 //index.js
+// 引入SDK核心类
+var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
+
 const weatherMap = {
   'sunny': '晴天',
   'cloudy': '多云',
@@ -17,12 +20,20 @@ const weatherColorMap = {
   'snow': '#aae1fc'
 }
 
+const UNPROMPTED = 0
+const UNAUTHORIZED = 1
+const AUTHORIZED = 2
+
 Page({
   data: {
     nowTemp: 14,
     nowWeather: '多云',
     nowWeatherBackground: '',
-    hourlyWeather: []
+    hourlyWeather: [],
+    todayTemp: "",
+    todayDate: "",
+    city: "广州市",
+    locationAuthType: UNPROMPTED
   },
   onPullDownRefresh: function () {//下拉刷新的回调
     this.getNow(() => {
@@ -33,7 +44,7 @@ Page({
     wx.request({
       url: 'https://test-miniprogram.com/api/weather/now',
       data: {
-        city: '广州市'
+        city: this.data.city
       },
       header: {
         'content-type': 'application/json'//默认值
@@ -45,7 +56,7 @@ Page({
         this.setNow(result);
         this.setHourlyWeather(result);
         //设置forecast参数
-
+        this.setToday(result);
       },
       fail: res => {
         wx.stopPullDownRefresh();
@@ -57,9 +68,36 @@ Page({
     })
   },
   onLoad() {
-    console.log("Hello world!");
-    this.getNow();
+    this.qqmapsdk = new QQMapWX({
+      key: 'BRXBZ-QRJCX-T2543-7DL7T-P72IO-5EBBF'
+    });
 
+    wx.getSetting({
+      success: res => {
+        let auth = res.authSetting['scope.userLocation']
+        console.log(auth)
+        this.setData({
+          locationAuthType: auth ? AUTHORIZED : (auth === false) ? UNAUTHORIZED : UNPROMPTED,
+        })
+        if (auth) {
+          this.getCiryAndWeather()
+        } else {
+          this.getNow()
+        }
+      },
+      fail: res => {
+        let auth = res.authSetting['scope.userLocation']
+        this.setData({
+          locationAuthType: auth ? AUTHORIZED : (auth === false) ? UNAUTHORIZED : UNPROMPTED,
+        })
+        if (auth) {
+          this.getCiryAndWeather()
+        } else {
+          this.getNow()
+        }
+      }
+    })
+    this.getNow();
   },
 
   // 设置当前时间 
@@ -103,6 +141,78 @@ Page({
     hourlyWeather[0].time = '现在'
     this.setData({
       hourlyWeather: hourlyWeather
+    })
+  },
+
+  setToday(result) {
+    let date = new Date();
+    this.setData({
+      todayTemp: `${result.today.minTemp}° - ${result.today.maxTemp}°`,
+      todayDate: `${date.getFullYear()} - ${date.getMonth() + 1} -${date.getDate()}今天`
+    })
+  },
+
+  onTapDayWeather() {
+    wx.navigateTo({
+      url: '/pages/list/list?city=' + this.data.city,
+    })
+  },
+  // 获取地址
+  onTapLocation() {
+
+    if (this.data.locationAuthType == UNAUTHORIZED) {
+      wx.openSetting({
+        success: res => {
+          let auth = res.authSetting["scope.userLocation"]
+          this.setData({
+            locationAuthType: auth ? AUTHORIZED : (auth === false) ? UNAUTHORIZED : UNPROMPTED,
+          })
+          if (auth) {
+            this.getCiryAndWeather()
+          } else {
+            this.getNow()
+          }
+        },
+        fail: res => {
+          console.log(res)
+        }
+      })
+      this.setData({
+        locationAuthType: AUTHORIZED
+      })
+    } else {
+      this.getCiryAndWeather()
+    }
+
+  },
+
+  getCiryAndWeather() {
+    wx.getLocation({
+      success: res => {
+        this.setData({
+          locationAuthType: AUTHORIZED
+        })
+        this.qqmapsdk.reverseGeocoder({
+          location: {
+            latitude: res.latitude,
+            longitude: res.longitude
+          },
+          success: res => {
+            let city = res.result.address_component.city;
+            console.log(city);
+            this.setData({
+              city: city,
+              locationTipsText: ""
+            })
+            this.getNow();
+          }
+        });
+      },
+      fail: res => {
+        this.setData({
+          locationAuthType: UNAUTHORIZED,
+        })
+      }
     })
   }
 })

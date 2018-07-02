@@ -1,25 +1,32 @@
 /**index.wxss**/
-.userinfo {
+/*地址  */
+.location-wrapper{
+  margin-bottom: 60rpx;
+  font-size: 30rpx;
+  line-height: 42rpx;
+  color: rgba(0, 0, 0, 0.5);
+}
+.location{
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
-
-.userinfo-avatar {
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
+.location-icon{
+  margin-right: 10rpx;
+  width: 21rpx;
+  height: 30rpx;
 }
-
-.userinfo-nickname {
-  color: #aaa;
+.location-text{
+  opacity: 0.5;
+  line-height: 42rpx;
 }
-
-.usermotto {
-  margin-top: 200px;
+.location-tips{
+  text-align: center;
+  opacity: 0.5;
+  margin-top: 10rpx;
+  line-height: 42rpx;
+  height: 42rpx;
 }
-
 /*温度  */
 .temp{
   margin-top: 200rpx;
@@ -38,8 +45,8 @@
 
 .weather-wrapper{
   position: relative;
-  padding-top: 64rpx;
-  padding-bottom: 180rpx;
+  padding-top: 20rpx;
+  padding-bottom: 200rpx;
   /* background-color: moccasin; */
 }
 
@@ -56,7 +63,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 40rpx;
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
 }
 
 .timetips-icon{
@@ -89,12 +97,38 @@
 
 .forecast-weather{
   margin-top: 50rpx;
+  margin-bottom: 50rpx;
   width: 60rpx;
   height: 60rpx;
 }
 
 .forecast-temp{
-  margin-top: 46rpx;
   font-size: 40rpx;
   line-height: 56rpx;
 }
+
+.day-weather{
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  left: 40rpx;
+  right: 40rpx;
+  height: 90rpx;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 30rpx;
+  line-height: 42rpx;
+  opacity: 0.5;
+}
+
+.temp-text{
+  flex-grow: 1;
+  padding-right: 30rpx;
+  text-align: right;
+}
+
+.arrow-icon{
+  width: 13rpx;
+  height: 24rpx;
+}
+
